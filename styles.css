@@ -1,0 +1,29 @@
+.field {
+    width: 250px;
+    padding: 40px;
+    margin: 10% auto auto auto;
+}
+
+.row {}
+
+.cell {
+    display: inline-block;
+    border: solid 2px #000000;
+    width: 70px;
+    height: 70px;
+    margin: 2px;
+    text-align: center;
+}
+
+    .a-cell,
+    .a-cell:active,
+    .a-cell:hover,
+    .a-cell:visited,
+    .a-cell:focus {
+        text-decoration: none;
+        color: #000;
+    }
+
+.mark {
+    font-size: 60px;
+}
