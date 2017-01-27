@@ -39,6 +39,7 @@ function nextGame() {
     var $endGame = $('.js-end-game');
     $endGame.removeClass('overlay');
     $endGame.addClass('invisible');
+    tictactoe.startGame();
 }
 
 function clearField() {
@@ -57,8 +58,8 @@ $(document).ready(init);
 var PLAYER_X = 'PLAYER_X';
 var PLAYER_0 = 'PLAYER_0';
 var FIELD_SIZE = 9;
-var WINNING_COMBINATIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7],
-    [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]];
+var WINNING_COMBINATIONS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
+    [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 
 function Tictactoe() {
     this.currentPlayer = PLAYER_X;
@@ -89,7 +90,7 @@ Tictactoe.prototype.saveInput = function(cellIndex) {
 
 Tictactoe.prototype.processInput = function() {
     if (this.checkWin()) {
-        this.nextGame();
+        this.endGame();
     } else {
         this.switchPlayer();
         if (this.currentPlayer === PLAYER_0) {
@@ -107,6 +108,15 @@ Tictactoe.prototype.switchPlayer = function() {
 };
 
 Tictactoe.prototype.computerTurn = function() {
+    var dangerCell = this.getDangerCells();
+    if (dangerCell) {
+        this.saveInput(dangerCell + 1);
+    } else {
+        this.safeTurn();
+    }
+};
+
+Tictactoe.prototype.safeTurn = function() {
     for (var i = 0; i < FIELD_SIZE; i++) {
         if (this.field[i] === null) {
             this.saveInput(i + 1);
@@ -135,15 +145,6 @@ Tictactoe.prototype.checkWin = function() {
     return win;
 };
 
-Tictactoe.prototype.updateScore = function() {
-    if (this.currentPlayer === PLAYER_X) {
-        this.scoreX += 1;
-    } else {
-        this.score0 += 1;
-    }
-    this.trigger('scoreUpdate', (this.currentPlayer + ' wins!'));
-};
-
 Tictactoe.prototype.on = function(eventName, callback) {
     this.callbacks[eventName] = callback;
 };
@@ -161,17 +162,64 @@ Tictactoe.prototype.getCurrentMark = function() {
     return '0';
 };
 
+Tictactoe.prototype.getOpponentMark = function() {
+    if (this.currentPlayer === PLAYER_X) {
+        return '0';
+    }
+    return 'X';
+};
+
 Tictactoe.prototype.getPlayerMarks = function(currentMark) {
     var marks = [];
     for (var i = 0; i < this.field.length; i++) {
         if (this.field[i] === currentMark) {
-            marks.push(i + 1);
+            marks.push(i);
         }
     }
     return marks;
 };
 
-Tictactoe.prototype.nextGame = function() {
+Tictactoe.prototype.endGame = function() {
     this.updateScore();
+};
+
+Tictactoe.prototype.updateScore = function() {
+    if (this.currentPlayer === PLAYER_X) {
+        this.scoreX += 1;
+    } else {
+        this.score0 += 1;
+    }
+    this.trigger('scoreUpdate', (this.currentPlayer + ' wins!'));
+};
+
+Tictactoe.prototype.startGame = function() {
     this.init();
+    if (this.currentPlayer === PLAYER_0) {
+        this.computerTurn();
+    }
+};
+
+Tictactoe.prototype.getDangerCells = function() {
+    var dangerCell;
+    var wins = [];
+    var currentMarks = this.getPlayerMarks(this.getOpponentMark());
+    for (var i = 0; i < WINNING_COMBINATIONS.length; i++) {
+        wins = WINNING_COMBINATIONS[i];
+        dangerCell = null;
+
+        if (currentMarks.includes(wins[0])) {
+            if (currentMarks.includes(wins[1])) {
+                dangerCell = wins[2];
+            } else if (currentMarks.includes(wins[2])) {
+                dangerCell = wins[1];
+            }
+        } else if (currentMarks.includes(wins[1]) && currentMarks.includes(wins[2])) {
+            dangerCell = wins[0];
+        }
+        if (dangerCell && !this.field[dangerCell]) {
+            return dangerCell;
+        }
+        dangerCell = null;
+    }
+    return dangerCell;
 };
