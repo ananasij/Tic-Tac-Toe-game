@@ -22,12 +22,18 @@ function renderCell(cellIndex) {
     $mark.text(tictactoe.getCurrentMark());
 }
 
-function renderScore(score) {
+function renderScore(result) {
     var $endGame = $('.js-end-game');
     var $scoreLine = $('.js-score');
     var $scoreX = $('.js-score-x');
     var $score0 = $('.js-score-0');
-    $scoreLine.text(score);
+    var content = '';
+    if (result === RESULT_WIN) {
+        content = tictactoe.currentPlayer + ' won!';
+    } else {
+        content = "It's draw.";
+    }
+    $scoreLine.text(content);
     $scoreX.text(tictactoe.scoreX);
     $score0.text(tictactoe.score0);
     $endGame.addClass('overlay');
@@ -57,6 +63,8 @@ $(document).ready(init);
 
 var PLAYER_X = 'PLAYER_X';
 var PLAYER_0 = 'PLAYER_0';
+var RESULT_WIN = 'RESULT_WIN';
+var RESULT_DRAW = 'RESULT_DRAW';
 var FIELD_SIZE = 9;
 var WINNING_COMBINATIONS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
     [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
@@ -90,7 +98,9 @@ Tictactoe.prototype.saveInput = function(cellIndex) {
 
 Tictactoe.prototype.processInput = function() {
     if (this.checkWin()) {
-        this.endGame();
+        this.endGame(RESULT_WIN);
+    } else if ((this.getPlayerMarks('X').length + this.getPlayerMarks('0').length) === FIELD_SIZE) {
+        this.endGame(RESULT_DRAW);
     } else {
         this.switchPlayer();
         if (this.currentPlayer === PLAYER_0) {
@@ -179,8 +189,11 @@ Tictactoe.prototype.getPlayerMarks = function(currentMark) {
     return marks;
 };
 
-Tictactoe.prototype.endGame = function() {
-    this.updateScore();
+Tictactoe.prototype.endGame = function(result) {
+    if (result === RESULT_WIN) {
+        this.updateScore();
+    }
+    this.trigger('scoreUpdate', result);
 };
 
 Tictactoe.prototype.updateScore = function() {
@@ -189,7 +202,6 @@ Tictactoe.prototype.updateScore = function() {
     } else {
         this.score0 += 1;
     }
-    this.trigger('scoreUpdate', (this.currentPlayer + ' wins!'));
 };
 
 Tictactoe.prototype.startGame = function() {
