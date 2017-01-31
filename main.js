@@ -100,6 +100,7 @@ Tictactoe.prototype.processInput = function() {
     if (this.checkWin()) {
         this.endGame(RESULT_WIN);
     } else if ((this.getPlayerMarks('X').length + this.getPlayerMarks('0').length) === FIELD_SIZE) {
+        this.switchPlayer();
         this.endGame(RESULT_DRAW);
     } else {
         this.switchPlayer();
@@ -119,7 +120,10 @@ Tictactoe.prototype.switchPlayer = function() {
 
 Tictactoe.prototype.computerTurn = function() {
     var dangerCell = this.getDangerCells();
-    if (dangerCell) {
+    var winCell = this.getWinCells(this.getCurrentMark());
+    if (winCell) {
+        this.saveInput(winCell + 1);
+    } else if (dangerCell) {
         this.saveInput(dangerCell + 1);
     } else {
         this.safeTurn();
@@ -127,11 +131,10 @@ Tictactoe.prototype.computerTurn = function() {
 };
 
 Tictactoe.prototype.safeTurn = function() {
-    for (var i = 0; i < FIELD_SIZE; i++) {
-        if (this.field[i] === null) {
-            this.saveInput(i + 1);
-            return;
-        }
+    if (this.getPlayerMarks('0').length === 0) {
+        this.saveInput(this.getFirstTurnCell() + 1);
+    } else {
+        this.saveInput(this.getRandomEmptyCell() + 1);
     }
 };
 
@@ -212,26 +215,53 @@ Tictactoe.prototype.startGame = function() {
 };
 
 Tictactoe.prototype.getDangerCells = function() {
-    var dangerCell;
+    return this.getWinCells(this.getOpponentMark());
+};
+
+Tictactoe.prototype.getWinCells = function(currentMark) {
+    var winCell = null;
     var wins = [];
-    var currentMarks = this.getPlayerMarks(this.getOpponentMark());
+    var currentMarks = this.getPlayerMarks(currentMark);
     for (var i = 0; i < WINNING_COMBINATIONS.length; i++) {
         wins = WINNING_COMBINATIONS[i];
-        dangerCell = null;
 
-        if (currentMarks.includes(wins[0])) {
-            if (currentMarks.includes(wins[1])) {
-                dangerCell = wins[2];
-            } else if (currentMarks.includes(wins[2])) {
-                dangerCell = wins[1];
-            }
+        if (currentMarks.includes(wins[0]) && currentMarks.includes(wins[1])) {
+            winCell = wins[2];
+        } else if (currentMarks.includes(wins[0]) && currentMarks.includes(wins[2])) {
+            winCell = wins[1];
         } else if (currentMarks.includes(wins[1]) && currentMarks.includes(wins[2])) {
-            dangerCell = wins[0];
+            winCell = wins[0];
         }
-        if (dangerCell && !this.field[dangerCell]) {
-            return dangerCell;
+
+        if (winCell && !this.field[winCell]) {
+            return winCell;
         }
-        dangerCell = null;
+        winCell = null;
     }
-    return dangerCell;
+    return winCell;
+};
+
+Tictactoe.prototype.getFirstTurnCell = function() {
+    var firstTurnOptions;
+    if (this.getPlayerMarks('X').length === 0) {
+        firstTurnOptions = [0, 2, 4, 6, 8];
+    } else if (this.field[4]) {
+        firstTurnOptions = [0, 2, 6, 8];
+    } else {
+        firstTurnOptions = [4];
+    }
+
+    var i = Math.floor(Math.random() * firstTurnOptions.length);
+    return firstTurnOptions[i];
+};
+
+Tictactoe.prototype.getRandomEmptyCell = function() {
+    var emptyCells = [];
+    for (var i = 0; i < this.field.length; i++) {
+        if (this.field[i] === null) {
+            emptyCells.push(i);
+        }
+    }
+    var RandomPosition = Math.floor(Math.random() * emptyCells.length);
+    return emptyCells[RandomPosition];
 };
