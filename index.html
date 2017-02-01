@@ -9,11 +9,21 @@
 </head>
 <body>
 <div class="game-container">
+    <div class="start-game js-start-game overlay">
+        <p>Select your mark</p>
+        <div>
+            <button class="mark-selection-btn js-mark-selection-btn" data-mark="X"> X </button>
+            <button class="mark-selection-btn js-mark-selection-btn" data-mark="0"> 0 </button>
+        </div>
+        <div>
+            <button class="js-start-game-btn"> Start! </button>
+        </div>
+    </div>
     <div class="end-game js-end-game invisible">
         <div class="score">
             <p class="js-score"></p>
-            <p>You: <span class="js-score-x"></span></p>
-            <p>Computer: <span class="js-score-0"></span></p>
+            <p>You: <span class="js-score-player"></span></p>
+            <p>Computer: <span class="js-score-computer"></span></p>
             <button class="js-play-again">Play again</button>
         </div>
     </div>

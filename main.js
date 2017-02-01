@@ -1,10 +1,7 @@
 var tictactoe;
+var playerMark = null;
 
 function init() {
-    tictactoe = new Tictactoe();
-    tictactoe.on('markSave', renderCell);
-    tictactoe.on('scoreUpdate', renderScore);
-
     $('.js-cell').on('click', function(e) {
         var cellIndex = $(e.target).data('index');
         tictactoe.saveInput(cellIndex);
@@ -12,6 +9,27 @@ function init() {
 
     $('.js-play-again').on('click', function() {
         nextGame();
+    });
+
+    $('.js-mark-selection-btn').on('click', function(e) {
+        var mark = $(e.target).data('mark');
+        if (mark === 'X') {
+            playerMark = PLAYER_X;
+        } else {
+            playerMark = PLAYER_0;
+        }
+    });
+
+    $('.js-start-game-btn').on('click', function() {
+        if (playerMark) {
+            tictactoe = new Tictactoe(playerMark);
+            tictactoe.on('markSave', renderCell);
+            tictactoe.on('scoreUpdate', renderScore);
+            tictactoe.startGame();
+            var $startGame = $('.js-start-game');
+            $startGame.removeClass('overlay');
+            $startGame.addClass('invisible');
+        }
     });
 }
 
@@ -25,17 +43,22 @@ function renderCell(cellIndex) {
 function renderScore(result) {
     var $endGame = $('.js-end-game');
     var $scoreLine = $('.js-score');
-    var $scoreX = $('.js-score-x');
-    var $score0 = $('.js-score-0');
+    var $scorePlayer = $('.js-score-player');
+    var $scoreComputer = $('.js-score-computer');
     var content = '';
     if (result === RESULT_WIN) {
         content = tictactoe.currentPlayer + ' won!';
     } else {
-        content = "It's draw.";
+        content = "It's a draw.";
     }
     $scoreLine.text(content);
-    $scoreX.text(tictactoe.scoreX);
-    $score0.text(tictactoe.score0);
+    if (playerMark === PLAYER_X) {
+        $scorePlayer.text(tictactoe.scoreX);
+        $scoreComputer.text(tictactoe.score0);
+    } else {
+        $scorePlayer.text(tictactoe.score0);
+        $scoreComputer.text(tictactoe.scoreX);
+    }
     $endGame.addClass('overlay');
     $endGame.removeClass('invisible');
 }
@@ -69,8 +92,7 @@ var FIELD_SIZE = 9;
 var WINNING_COMBINATIONS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
     [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 
-function Tictactoe() {
-    this.currentPlayer = PLAYER_X;
+function Tictactoe(playerSelection) {
     this.callbacks = {
         markSave: null,
         scoreUpdate: null
@@ -78,7 +100,9 @@ function Tictactoe() {
     this.field = [];
     this.scoreX = 0;
     this.score0 = 0;
-    this.init();
+    this.player = playerSelection;
+    this.computer = this.getComputerRole();
+    this.currentPlayer = this.getFirstPlayer();
 }
 
 Tictactoe.prototype.init = function() {
@@ -104,7 +128,7 @@ Tictactoe.prototype.processInput = function() {
         this.endGame(RESULT_DRAW);
     } else {
         this.switchPlayer();
-        if (this.currentPlayer === PLAYER_0) {
+        if (this.currentPlayer === this.computer) {
             this.computerTurn();
         }
     }
@@ -131,7 +155,7 @@ Tictactoe.prototype.computerTurn = function() {
 };
 
 Tictactoe.prototype.safeTurn = function() {
-    if (this.getPlayerMarks('0').length === 0) {
+    if (this.getPlayerMarks(this.getCurrentMark()).length === 0) {
         this.saveInput(this.getFirstTurnCell() + 1);
     } else {
         this.saveInput(this.getRandomEmptyCell() + 1);
@@ -209,7 +233,7 @@ Tictactoe.prototype.updateScore = function() {
 
 Tictactoe.prototype.startGame = function() {
     this.init();
-    if (this.currentPlayer === PLAYER_0) {
+    if (this.currentPlayer === this.computer) {
         this.computerTurn();
     }
 };
@@ -243,7 +267,7 @@ Tictactoe.prototype.getWinCells = function(currentMark) {
 
 Tictactoe.prototype.getFirstTurnCell = function() {
     var firstTurnOptions;
-    if (this.getPlayerMarks('X').length === 0) {
+    if (this.getPlayerMarks(this.getOpponentMark()).length === 0) {
         firstTurnOptions = [0, 2, 4, 6, 8];
     } else if (this.field[4]) {
         firstTurnOptions = [0, 2, 6, 8];
@@ -264,4 +288,18 @@ Tictactoe.prototype.getRandomEmptyCell = function() {
     }
     var RandomPosition = Math.floor(Math.random() * emptyCells.length);
     return emptyCells[RandomPosition];
+};
+
+Tictactoe.prototype.getComputerRole = function() {
+    if (this.player === PLAYER_X) {
+        return PLAYER_0;
+    }
+    return PLAYER_X;
+};
+
+Tictactoe.prototype.getFirstPlayer = function() {
+    if (this.player === PLAYER_X) {
+        return this.player;
+    }
+    return this.computer;
 };
