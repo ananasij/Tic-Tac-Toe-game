@@ -4,64 +4,74 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel="stylesheet" href="styles.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Pangolin" rel="stylesheet">
     <script src="jquery.min.js"></script>
     <script src="main.js"></script>
 </head>
 <body>
-<div class="game-container">
-    <div class="start-game js-start-game overlay">
-        <p>Select your mark</p>
-        <div>
-            <button class="mark-selection-btn js-mark-selection-btn" data-mark="X"> X </button>
-            <button class="mark-selection-btn js-mark-selection-btn" data-mark="0"> 0 </button>
-        </div>
-        <div>
-            <button class="js-start-game-btn"> Start! </button>
-        </div>
-    </div>
+<div class="game-container js-game-container">
     <div class="end-game js-end-game invisible">
-        <div class="score">
-            <p class="js-score"></p>
-            <p>You: <span class="js-score-player"></span></p>
-            <p>Computer: <span class="js-score-computer"></span></p>
-            <button class="js-play-again">Play again</button>
+        <p class="scoreline js-score"></p>
+        <button class="js-play-again play-again-btn">Play again</button>
+    </div>
+    <div class="score">
+        <div class="score-item">
+            <p>You: <span class="js-score-player">0</span></p>
+        </div>
+        <div class="score-item">
+            <p>Computer: <span class="js-score-computer">0</span></p>
         </div>
     </div>
-    <div class="field">
-        <div class="row">
+    <div class="field-container">
+        <div class="start-game js-start-game overlay">
+            <p>Select your mark!</p>
+            <div>
+                <button class="mark-selection-btn js-mark-selection-btn" data-mark="X"> X </button>
+                <button class="mark-selection-btn js-mark-selection-btn" data-mark="0"> 0 </button>
+            </div>
+            <div>
+                <button class="js-start-game-btn"> Start! </button>
+            </div>
+        </div>
+        <div class="field">
             <a href="#" class="a-cell js-cell"><div class="cell js-cell-1" data-index="1">
                 <span class="mark js-mark"></span>
             </div></a>
-            <a href="#" class="a-cell js-cell"><div class="cell js-cell-2" data-index="2">
-                <span class="mark js-mark"></span>
-            </div></a>
+            <div class="vertical-row ">
+                <a href="#" class="a-cell js-cell"><div class="cell  js-cell-2" data-index="2">
+                    <span class="mark js-mark"></span>
+                </div></a>
+            </div>
             <a href="#" class="a-cell js-cell"><div class="cell js-cell-3" data-index="3">
                 <span class="mark js-mark"></span>
             </div></a>
-        </div>
-        <div class="row">
-            <a href="#" class="a-cell js-cell"><div class="cell js-cell-4" data-index="4">
-                <span class="mark js-mark"></span>
-            </div></a>
-            <a href="#" class="a-cell js-cell"><div class="cell js-cell-5" data-index="5">
-                <span class="mark js-mark"></span>
-            </div></a>
-            <a href="#" class="a-cell js-cell"><div class="cell js-cell-6" data-index="6">
-                <span class="mark js-mark"></span>
-            </div></a>
-        </div>
-        <div class="row">
+            <div class="horizontal-row">
+                <a href="#" class="a-cell js-cell"><div class="cell  js-cell-4" data-index="4">
+                    <span class="mark js-mark"></span>
+                </div></a>
+            <div class="vertical-row">
+                <a href="#" class="a-cell js-cell"><div class="cell   js-cell-5" data-index="5">
+                    <span class="mark js-mark"></span>
+                </div></a>
+            </div>
+                <a href="#" class="a-cell js-cell"><div class="cell  js-cell-6" data-index="6">
+                    <span class="mark js-mark"></span>
+                </div></a>
+            </div>
             <a href="#" class="a-cell js-cell"><div class="cell js-cell-7" data-index="7">
                 <span class="mark js-mark"></span>
             </div></a>
-            <a href="#" class="a-cell js-cell"><div class="cell js-cell-8" data-index="8">
-                <span class="mark js-mark"></span>
-            </div></a>
+            <div class="vertical-row ">
+                <a href="#" class="a-cell js-cell"><div class="cell  js-cell-8" data-index="8">
+                    <span class="mark js-mark"></span>
+                </div></a>
+            </div>
             <a href="#" class="a-cell js-cell"><div class="cell js-cell-9" data-index="9">
                 <span class="mark js-mark"></span>
             </div></a>
         </div>
     </div>
+
 </div>
 
 

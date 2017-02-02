@@ -4,6 +4,8 @@ var PLAYER_X = 'PLAYER_X';
 var PLAYER_0 = 'PLAYER_0';
 var RESULT_WIN = 'RESULT_WIN';
 var RESULT_DRAW = 'RESULT_DRAW';
+var STATE_PLAY = 'STATE_PLAY';
+var STATE_LOCKED = 'STATE_LOCKED';
 var FIELD_SIZE = 9;
 var WINNING_COMBINATIONS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
     [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
@@ -23,6 +25,7 @@ function Tictactoe(playerSelection) {
 
 Tictactoe.prototype.startGame = function() {
     this.initField();
+    this.state = STATE_PLAY;
     if (this.currentPlayer === this.computer) {
         this.computerTurn();
     }
@@ -35,9 +38,8 @@ Tictactoe.prototype.initField = function() {
 };
 
 Tictactoe.prototype.saveInput = function(cellIndex) {
-    var mark = this.getCurrentMark();
-    if (cellIndex && !this.field[cellIndex - 1]) {
-        this.field[cellIndex - 1] = mark;
+    if (this.state === STATE_PLAY && cellIndex && !this.field[cellIndex - 1]) {
+        this.field[cellIndex - 1] = this.getCurrentMark();
         this.trigger('markSave', cellIndex);
         this.processInput();
     }
@@ -63,12 +65,12 @@ Tictactoe.prototype.checkWin = function() {
     currentMarks = this.getPlayerMarks(this.getCurrentMark());
 
     for (var i = 0; i < WINNING_COMBINATIONS.length; i++) {
-        win = true;
         for (var j = 0; j < 3; j++) {
             if (!currentMarks.includes(WINNING_COMBINATIONS[i][j])) {
                 win = false;
                 break;
             }
+            win = WINNING_COMBINATIONS[i];
         }
         if (win) {
             break;
@@ -86,6 +88,7 @@ Tictactoe.prototype.switchPlayer = function() {
 };
 
 Tictactoe.prototype.endGame = function(result) {
+    this.state = STATE_LOCKED;
     if (result === RESULT_WIN) {
         this.updateScore();
     }
@@ -241,13 +244,13 @@ function init() {
             tictactoe.on('markSave', renderCell);
             tictactoe.on('scoreUpdate', renderScore);
             tictactoe.startGame();
-            var $startGame = $('.js-start-game');
-            $startGame.removeClass('overlay');
-            $startGame.addClass('invisible');
+            $('.js-start-game').removeClass('overlay');
+            $('.js-field').addClass('overlay');
         }
     });
 
     $('.js-cell').on('click', function(e) {
+        e.preventDefault();
         var cellIndex = $(e.target).data('index');
         tictactoe.saveInput(cellIndex);
     });
@@ -263,13 +266,17 @@ function renderCell(cellIndex) {
 }
 
 function renderScore(result) {
-    var $endGame = $('.js-end-game');
+    highlightWin();
     var $scoreLine = $('.js-score');
     var $scorePlayer = $('.js-score-player');
     var $scoreComputer = $('.js-score-computer');
     var content = '';
     if (result === RESULT_WIN) {
-        content = tictactoe.currentPlayer + ' won!';
+        if (tictactoe.currentPlayer === playerMark) {
+            content = 'You won!';
+        } else {
+            content = 'Computer won!';
+        }
     } else {
         content = "It's a draw.";
     }
@@ -281,23 +288,30 @@ function renderScore(result) {
         $scorePlayer.text(tictactoe.score0);
         $scoreComputer.text(tictactoe.scoreX);
     }
-    $endGame.addClass('overlay');
-    $endGame.removeClass('invisible');
+    $('.js-end-game').removeClass('invisible');
+}
+
+function highlightWin() {
+    var cellClass;
+    var win = tictactoe.checkWin();
+    for (var i = 0; i < win.length; i++) {
+        cellClass = '.js-cell-' + (win[i] + 1);
+        $(cellClass).addClass('winning-cell');
+    }
 }
 
 function nextGame() {
     clearField();
-    var $endGame = $('.js-end-game');
-    $endGame.removeClass('overlay');
-    $endGame.addClass('invisible');
     tictactoe.startGame();
+    $('.js-end-game').addClass('invisible');
 }
 
 function clearField() {
     for (var i = 1; i <= 9; i++) {
-        var cellClass = '.js-cell-' + i;
-        var $mark = $(cellClass).find('.js-mark');
+        var $cell = $('.js-cell-' + i);
+        var $mark = $cell.find('.js-mark');
 
+        $cell.removeClass('winning-cell');
         $mark.text('');
     }
 }
