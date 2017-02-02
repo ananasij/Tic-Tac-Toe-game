@@ -155,9 +155,9 @@ Tictactoe.prototype.trigger = function(eventName, value) {
 Tictactoe.prototype.computerTurn = function() {
     var dangerCell = this.getDangerCells();
     var winCell = this.getWinCells(this.getCurrentMark());
-    if (winCell) {
+    if (winCell !== null) {
         this.saveInput(winCell + 1);
-    } else if (dangerCell) {
+    } else if (dangerCell !== null) {
         this.saveInput(dangerCell + 1);
     } else {
         this.safeTurn();
@@ -190,7 +190,7 @@ Tictactoe.prototype.getWinCells = function(currentMark) {
             winCell = wins[0];
         }
 
-        if (winCell && !this.field[winCell]) {
+        if (winCell !== null && !this.field[winCell]) {
             return winCell;
         }
         winCell = null;
